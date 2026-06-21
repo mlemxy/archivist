@@ -1,0 +1,20 @@
+{
+  "name": "archivist",
+  "version": "1.0.0",
+  "description": "Your personal AO3 fanfic bookmarker, tracker, and reading dashboard.",
+  "author": "mlemxy",
+  "license": "ISC",
+  "dependencies": {
+    "chart.js": "^4.5.1",
+    "firebase": "^12.15.0",
+    "html2canvas": "^1.4.1",
+    "idb": "^8.0.0"
+  },
+  "scripts": {
+    "install-deps": "npm install"
+  },
+  "notes": "Run 'npm install' in this folder before loading the extension. The idb package in node_modules is required by src/db/database.js.",
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  }
+}

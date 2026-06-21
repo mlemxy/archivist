@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Archivist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+
+  <!-- ── HEADER ─────────────────────────────────────────────────── -->
+  <header class="popup-header">
+    <span class="popup-logo">Archivist</span>
+    <button class="icon-btn" id="open-dashboard-btn" title="Open Dashboard">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- ── NOT ON A FIC PAGE ──────────────────────────────────────── -->
+  <div class="state" id="state-no-fic">
+    <div class="empty-icon">📖</div>
+    <p class="empty-title">No fic detected</p>
+    <p class="empty-sub">Navigate to an AO3 fic page to bookmark it.</p>
+    <a class="btn btn-ghost" href="https://archiveofourown.org" target="_blank">Go to AO3</a>
+  </div>
+
+  <!-- ── FIC DETECTED ───────────────────────────────────────────── -->
+  <div class="state hidden" id="state-fic">
+
+    <!-- Fic meta -->
+    <div class="fic-meta">
+      <div class="fic-rating" id="fic-rating">G</div>
+      <div class="fic-info">
+        <p class="fic-title" id="fic-title">Loading…</p>
+        <p class="fic-author" id="fic-author"></p>
+      </div>
+    </div>
+
+    <div class="fic-fandoms" id="fic-fandoms"></div>
+
+    <div class="fic-stats">
+      <span id="fic-words"></span>
+      <span class="dot">·</span>
+      <span id="fic-chapters"></span>
+      <span class="dot">·</span>
+      <span id="fic-ao3-status"></span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Already bookmarked banner -->
+    <div class="already-saved hidden" id="already-saved-banner">
+      ✓ Already in your library — editing existing entry
+    </div>
+
+    <!-- Status -->
+    <label class="field-label" for="status-select">Reading status</label>
+    <div class="select-wrapper">
+      <select id="status-select">
+        <option value="Reading">Reading</option>
+        <option value="Completed">Completed</option>
+        <option value="On Hold">On Hold</option>
+        <option value="Dropped">Dropped</option>
+        <option value="Plan to Read" selected>Plan to Read</option>
+      </select>
+    </div>
+
+    <!-- Quick note -->
+    <label class="field-label" for="quick-note">Quick note <span class="char-count" id="char-count">0 / 140</span></label>
+    <textarea
+      id="quick-note"
+      class="textarea"
+      placeholder="First impressions, warnings to self, why you saved this…"
+      maxlength="140"
+      rows="3"
+    ></textarea>
+
+    <!-- Personal tags -->
+    <label class="field-label" for="tag-input">Tags <span class="field-hint">comma-separated</span></label>
+    <input
+      id="tag-input"
+      class="input"
+      type="text"
+      placeholder="e.g. hurt/comfort, slow burn, reread"
+    />
+    <div class="tag-chips" id="tag-chips"></div>
+
+    <div class="divider"></div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-ghost" id="open-panel-btn">Full detail →</button>
+      <button class="btn btn-primary" id="save-btn">Save</button>
+    </div>
+
+  </div>
+
+  <!-- ── SAVE FEEDBACK ──────────────────────────────────────────── -->
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="popup.js" type="module"></script>
+</body>
+</html>

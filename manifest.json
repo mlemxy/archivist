@@ -1,0 +1,76 @@
+{
+  "manifest_version": 3,
+  "name": "Archivist",
+  "version": "1.0.0",
+  "description": "Your personal AO3 fanfic bookmarker, tracker, and reading dashboard.",
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications",
+    "sidePanel",
+    "activeTab",
+    "scripting",
+    "cookies",
+    "identity"
+  ],
+  "host_permissions": [
+    "https://archiveofourown.org/*",
+    "https://archivist-6efd3.firebaseapp.com/*",
+    "https://*.googleapis.com/*",
+    "https://securetoken.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://archiveofourown.org/works/*"
+      ],
+      "js": [
+        "src/content/scraper.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    },
+    "default_title": "Archivist"
+  },
+  "side_panel": {
+    "default_path": "src/sidepanel/sidepanel.html"
+  },
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+  "chrome_url_overrides": {},
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "src/dashboard/dashboard.html",
+        "assets/fonts/*",
+        "assets/icons/*",
+        "assets/lib/*",
+        "assets/lib/firebase.bundle.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "oauth2": {
+    "client_id": "223549238677-cuftds8la8645q8d077kbdlv2pgdvtrd.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "openid"
+    ]
+  }
+}

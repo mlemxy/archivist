@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArchivistOS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+
+  <!-- ── DESKTOP ── -->
+  <div id="desktop">
+
+    <!-- Wallpaper canvas / image layer -->
+    <div id="wallpaper-layer"></div>
+
+    <!-- ── MENUBAR ── -->
+    <div class="menubar" id="menubar">
+      <div class="menubar-left">
+        <span class="menu-logo">ArchivistOS</span>
+        <span class="menu-item" id="menu-file">File</span>
+        <span class="menu-item" id="menu-view">View</span>
+        <span class="menu-item" id="menu-window">Window</span>
+      </div>
+      <div class="menubar-right">
+        <span class="menu-username" id="menu-username"></span>
+        <span class="menu-clock" id="menu-clock"></span>
+      </div>
+    </div>
+
+    <!-- File dropdown -->
+    <div class="menu-dropdown hidden" id="dropdown-file">
+      <button class="menu-dropdown-item" id="menu-new-bookmark">New Bookmark</button>
+      <div class="menu-dropdown-sep"></div>
+      <button class="menu-dropdown-item" id="menu-export">Export Bookmarks</button>
+      <button class="menu-dropdown-item" id="menu-import-trigger">Import Bookmarks</button>
+      <input id="menu-import-file" type="file" accept=".json" style="display:none" />
+    </div>
+
+    <!-- View dropdown -->
+    <div class="menu-dropdown hidden" id="dropdown-view">
+      <button class="menu-dropdown-item" data-win="win-bookmarks">Bookmarks</button>
+      <button class="menu-dropdown-item" data-win="win-stats">Reading Stats</button>
+      <button class="menu-dropdown-item" data-win="win-wrapped">AO3 Wrapped</button>
+      <button class="menu-dropdown-item" data-win="win-settings">Settings</button>
+    </div>
+
+    <!-- Window dropdown -->
+    <div class="menu-dropdown hidden" id="dropdown-window">
+      <button class="menu-dropdown-item" id="menu-close-all">Close All Windows</button>
+      <button class="menu-dropdown-item" id="menu-tile">Tile Windows</button>
+    </div>
+
+    <!-- ── DESKTOP ICONS (right side) ── -->
+    <div class="desktop-icons" id="desktop-icons">
+      <div class="desk-icon" data-win="win-bookmarks">
+        <div class="desk-icon-img">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </div>
+        <span class="desk-icon-label">Bookmarks</span>
+      </div>
+      <div class="desk-icon" data-win="win-stats">
+        <div class="desk-icon-img">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <span class="desk-icon-label">Stats</span>
+      </div>
+
+      <div class="desk-icon" data-win="win-settings">
+        <div class="desk-icon-img">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+        <span class="desk-icon-label">Settings</span>
+      </div>
+    </div>
+
+    <!-- ── PHOTO WIDGET ── -->
+    <div class="photo-widget hidden" id="photo-widget">
+      <div class="photo-frame" id="photo-frame">
+        <img id="photo-img" src="" alt="pinned photo" />
+        <div class="photo-remove" id="photo-remove" title="Remove photo">x</div>
+      </div>
+    </div>
+
+    <!-- ── WELCOME GHOST ── -->
+    <div class="welcome-ghost" id="welcome-ghost">
+      <p class="ghost-label">last bookmarked</p>
+      <p class="ghost-title" id="ghost-title"></p>
+      <p class="ghost-author" id="ghost-author"></p>
+      <p class="ghost-excerpt" id="ghost-excerpt"></p>
+    </div>
+
+    <!-- ── WINDOWS ── -->
+    <div id="windows-layer">
+
+      <!-- BOOKMARKS -->
+      <div class="window hidden" id="win-bookmarks" style="top:48px;left:60px;width:760px;height:520px;">
+        <div class="win-titlebar" data-win="win-bookmarks">
+          <div class="traffic">
+            <span class="tl-close" data-win="win-bookmarks"></span>
+            <span class="tl-min"   data-win="win-bookmarks"></span>
+            <span class="tl-max"   data-win="win-bookmarks"></span>
+          </div>
+          <span class="win-title">My Bookmarks</span>
+        </div>
+        <div class="win-body win-body-noscroll">
+          <div class="bm-toolbar">
+            <input class="bm-search" id="bm-search" type="search" placeholder="Search title, author, fandom, tags..." />
+            <div class="bm-filters">
+              <select id="bm-filter-status">
+                <option value="">All statuses</option>
+                <option value="Reading">Reading</option>
+                <option value="Completed">Completed</option>
+                <option value="On Hold">On Hold</option>
+                <option value="Dropped">Dropped</option>
+                <option value="Plan to Read">Plan to Read</option>
+              </select>
+              <select id="bm-sort">
+                <option value="dateBookmarked-desc">Newest first</option>
+                <option value="dateBookmarked-asc">Oldest first</option>
+                <option value="dateUpdatedOnAO3-desc">Recently updated</option>
+                <option value="wordCount-desc">Longest</option>
+                <option value="wordCount-asc">Shortest</option>
+                <option value="starRating-desc">Top rated</option>
+              </select>
+            </div>
+          </div>
+          <div class="bm-tabs" id="bm-tabs">
+            <button class="bm-tab active" data-status="">All</button>
+            <button class="bm-tab" data-status="Reading">Reading</button>
+            <button class="bm-tab" data-status="Completed">Completed</button>
+            <button class="bm-tab" data-status="On Hold">On Hold</button>
+            <button class="bm-tab" data-status="Dropped">Dropped</button>
+            <button class="bm-tab" data-status="Plan to Read">Plan to Read</button>
+          </div>
+          <div class="bm-grid" id="bm-grid"></div>
+          <div class="bm-empty hidden" id="bm-empty">
+            <div class="empty-icon-wrap">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <p class="empty-title">No bookmarks yet</p>
+            <p class="empty-sub">Navigate to an AO3 fic and click the Archivist icon to save your first fic.</p>
+          </div>
+          <div class="bm-pagination hidden" id="bm-pagination">
+            <button class="page-btn" id="page-prev">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="page-numbers" id="page-numbers"></div>
+            <button class="page-btn" id="page-next">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="window hidden" id="win-stats" style="top:48px;left:100px;width:700px;height:560px;">
+        <div class="win-titlebar" data-win="win-stats">
+          <div class="traffic">
+            <span class="tl-close" data-win="win-stats"></span>
+            <span class="tl-min"   data-win="win-stats"></span>
+            <span class="tl-max"   data-win="win-stats"></span>
+          </div>
+          <span class="win-title">Reading Stats</span>
+        </div>
+        <div class="win-body win-body-noscroll"><!-- populated by stats.js --></div>
+      </div>
+
+      <!-- WRAPPED -->
+      <div class="window hidden" id="win-wrapped" style="top:48px;left:120px;width:680px;height:560px;">
+        <div class="win-titlebar" data-win="win-wrapped">
+          <div class="traffic">
+            <span class="tl-close" data-win="win-wrapped"></span>
+            <span class="tl-min"   data-win="win-wrapped"></span>
+            <span class="tl-max"   data-win="win-wrapped"></span>
+          </div>
+          <span class="win-title">AO3 Wrapped</span>
+        </div>
+        <div class="win-body win-body-noscroll"><!-- populated by wrapped.js --></div>
+      </div>
+
+      <!-- SYNC -->
+      <div class="window hidden" id="win-sync" style="top:48px;left:160px;width:400px;height:480px;">
+        <div class="win-titlebar" data-win="win-sync">
+          <div class="traffic">
+            <span class="tl-close" data-win="win-sync"></span>
+            <span class="tl-min"   data-win="win-sync"></span>
+            <span class="tl-max"   data-win="win-sync"></span>
+          </div>
+          <span class="win-title">Sync</span>
+        </div>
+        <div class="win-body" id="sync-win-body"><!-- populated by auth.js --></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="window hidden" id="win-settings" style="top:48px;left:140px;width:520px;height:600px;">
+        <div class="win-titlebar" data-win="win-settings">
+          <div class="traffic">
+            <span class="tl-close" data-win="win-settings"></span>
+            <span class="tl-min"   data-win="win-settings"></span>
+            <span class="tl-max"   data-win="win-settings"></span>
+          </div>
+          <span class="win-title">Settings</span>
+        </div>
+        <div class="win-body">
+
+          <section class="settings-section">
+            <p class="settings-heading">Wallpaper</p>
+            <div class="wallpaper-row">
+              <div class="wallpaper-preview" id="wallpaper-preview"></div>
+              <div class="wallpaper-actions">
+                <label class="btn btn-ghost btn-sm" for="wallpaper-upload">Set wallpaper</label>
+                <input id="wallpaper-upload" type="file" accept="image/*" style="display:none" />
+                <button class="btn btn-ghost btn-sm" id="wallpaper-reset">Reset to default</button>
+              </div>
+            </div>
+          </section>
+
+          <div class="settings-divider"></div>
+
+          <section class="settings-section">
+            <p class="settings-heading">Pin a Photo to Desktop</p>
+            <p class="settings-sub">Upload a photo to pin on your desktop like a polaroid.</p>
+            <div class="wallpaper-actions" style="margin-top:10px">
+              <label class="btn btn-ghost btn-sm" for="photo-upload">Upload photo</label>
+              <input id="photo-upload" type="file" accept="image/*" style="display:none" />
+              <button class="btn btn-ghost btn-sm" id="photo-remove-btn">Remove photo</button>
+            </div>
+          </section>
+
+          <div class="settings-divider"></div>
+
+          <section class="settings-section">
+            <p class="settings-heading">AO3 Connection</p>
+            <div class="cookie-instructions">
+              <p class="cookie-instructions-title">How to get your cookies</p>
+              <ol class="cookie-steps">
+                <li>Open <strong>archiveofourown.org</strong> in Chrome while logged in.</li>
+                <li>Right-click anywhere and choose <strong>Inspect</strong>.</li>
+                <li>Go to the <strong>Application</strong> tab.</li>
+                <li>Expand <strong>Cookies</strong> in the sidebar and click <strong>https://archiveofourown.org</strong>.</li>
+                <li>Copy the <strong>Value</strong> of each cookie into the fields below.</li>
+              </ol>
+              <div class="cookie-note">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span>These cookies cannot be read via the browser console (HttpOnly). Copy them from the Application tab only. <strong>_otwarchive_session</strong> is the only required one.</span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label" for="s-username">AO3 Username</label>
+              <input id="s-username" class="input" type="text" placeholder="your_ao3_username" />
+            </div>
+            <div class="field">
+              <label class="field-label" for="s-session">_otwarchive_session <span class="required-badge">required</span></label>
+              <input id="s-session" class="input" type="password" placeholder="paste value from Application tab" />
+            </div>
+            <div class="field">
+              <label class="field-label" for="s-cfbm">__cf_bm <span class="optional-badge">optional</span></label>
+              <input id="s-cfbm" class="input" type="password" placeholder="paste value or leave blank" />
+            </div>
+            <div class="field">
+              <label class="field-label" for="s-cfuvid">_cfuvid <span class="optional-badge">optional</span></label>
+              <input id="s-cfuvid" class="input" type="password" placeholder="paste value or leave blank" />
+            </div>
+            <div class="field">
+              <label class="field-label" for="s-clearance">cf_clearance <span class="optional-badge">optional</span></label>
+              <input id="s-clearance" class="input" type="password" placeholder="paste value or leave blank" />
+            </div>
+            <div class="conn-actions">
+              <button class="btn btn-primary" id="s-save-cookies">Save Connection</button>
+              <span class="conn-status" id="conn-status"></span>
+            </div>
+          </section>
+
+          <div class="settings-divider"></div>
+
+          <section class="settings-section">
+            <p class="settings-heading">Notifications</p>
+            <div class="field field-inline">
+              <div>
+                <p class="field-label" style="margin-bottom:0">Chapter update checks</p>
+                <p class="field-hint-block">Check every 12 hours for new chapters</p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="s-notify-enabled" checked />
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+          </section>
+
+          <div class="settings-divider"></div>
+
+          <section class="settings-section">
+            <p class="settings-heading">Data</p>
+            <div class="data-actions">
+              <button class="btn btn-ghost btn-sm" id="s-export">Export bookmarks (JSON)</button>
+              <label class="btn btn-ghost btn-sm" for="s-import-file">Import bookmarks (JSON)</label>
+              <input id="s-import-file" type="file" accept=".json" style="display:none" />
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+    </div>
+    <!-- /windows-layer -->
+
+    <!-- ── DOCK ── -->
+    <nav class="dock" id="dock">
+      <button class="dock-item" data-win="win-bookmarks" title="My Bookmarks">
+        <span class="dock-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </span>
+        <span class="dock-label">Bookmarks</span>
+      </button>
+      <button class="dock-item" data-win="win-stats" title="Reading Stats">
+        <span class="dock-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </span>
+        <span class="dock-label">Stats</span>
+      </button>
+      <button class="dock-item" data-win="win-sync" title="Sync">
+        <span class="dock-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+        </span>
+        <span class="dock-label">Sync</span>
+      </button>
+      <div class="dock-separator"></div>
+      <button class="dock-item" data-win="win-settings" title="Settings">
+        <span class="dock-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </span>
+        <span class="dock-label">Settings</span>
+      </button>
+    </nav>
+
+  </div>
+  <!-- /desktop -->
+
+  <!-- FIC MODAL -->
+  <div class="modal-overlay hidden" id="fic-modal-overlay">
+    <div class="fic-modal">
+      <button class="modal-close" id="modal-close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="modal-swatch" id="modal-swatch"></div>
+      <div class="modal-body">
+        <div class="modal-header">
+          <span class="modal-rating" id="modal-rating">G</span>
+          <div>
+            <h2 class="modal-title" id="modal-title"></h2>
+            <p class="modal-author" id="modal-author"></p>
+          </div>
+        </div>
+        <div class="modal-fandoms" id="modal-fandoms"></div>
+        <div class="modal-stats">
+          <span id="modal-words"></span><span class="sep">·</span>
+          <span id="modal-chapters"></span><span class="sep">·</span>
+          <span id="modal-ao3-status"></span>
+        </div>
+        <div class="modal-annotation hidden" id="modal-annotation"></div>
+        <div class="modal-tags" id="modal-tags"></div>
+        <div class="modal-actions">
+          <a class="btn btn-ghost btn-sm" id="modal-ao3-link" href="#" target="_blank">Open on AO3</a>
+          <button class="btn btn-danger btn-sm" id="modal-delete-btn">Delete</button>
+        </div>
+        <p class="modal-date" id="modal-date"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM DELETE -->
+  <div class="confirm-overlay hidden" id="confirm-overlay">
+    <div class="confirm-dialog">
+      <p class="confirm-title">Delete this bookmark?</p>
+      <p class="confirm-sub">Your annotation and tags will be permanently removed.</p>
+      <div class="confirm-actions">
+        <button class="btn btn-ghost" id="confirm-cancel">Cancel</button>
+        <button class="btn btn-danger" id="confirm-delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="../../assets/lib/html2canvas.min.js"></script>
+  <script src="../../assets/lib/chart.umd.js"></script>
+  <script src="dashboard.js" type="module"></script>
+</body>
+</html>
