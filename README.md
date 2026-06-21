@@ -51,8 +51,8 @@ flowchart TD
 ```
 
 **Data flow:**
-1. User visits an AO3 fic page, `scraper.js` extracts metadata and sends it to the service worker
-2. User opens the popup or side panel, retrieves the cached fic from `chrome.storage.session`
+1. User visits an AO3 fic page -- `scraper.js` extracts metadata and sends it to the service worker
+2. User opens the popup or side panel -- retrieves the cached fic from `chrome.storage.session`
 3. Save writes to IndexedDB locally first, then syncs to Firestore if signed in
 4. The service worker alarm fires every 12 hours and delegates chapter checks to `updater.js`
 5. The dashboard pulls reading history from AO3 via `ao3-scraper.js` and renders charts with Chart.js
@@ -98,7 +98,7 @@ flowchart TD
 - On first sign-in, local bookmarks are uploaded to Firestore
 - Subsequent sign-ins only push changes since the last sync
 - Real-time listener picks up changes made on other devices
-- AO3 cookies, wallpaper, and pinned photo are never synced, local only
+- AO3 cookies, wallpaper, and pinned photo are never synced -- local only
 
 ---
 
@@ -114,6 +114,30 @@ npm install
 2. Enable **Developer mode** (top right toggle)
 3. Click **Load unpacked** and select the `archivist` folder
 4. Add your icons to `assets/icons/` -- `icon16.png`, `icon48.png`, `icon128.png`
+
+---
+
+## Using Your Own Firebase Project
+
+The repo ships with a default Firebase config. To use your own:
+
+1. Create a project at [console.firebase.google.com](https://console.firebase.google.com)
+2. Enable **Authentication** then Email/Password
+3. Create a **Firestore Database** in production mode
+4. Set Firestore security rules:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+5. Replace the config object in `src/dashboard/firebase.js` with your project config (found in Project Settings then Your apps)
 
 ---
 
@@ -159,8 +183,8 @@ archivist/
 
 - **Sync and authentication are in beta.** First-time sync can be slow for large libraries. Firebase listeners occasionally require a page refresh to reconnect after a long idle period.
 - **Google sign-in** requires additional per-developer setup (Chrome OAuth client ID) and is not configured by default. Use email/password instead.
-- **AO3 rate limiting** the stats scraper may be blocked temporarily if AO3's Cloudflare protection triggers. The scraper backs off automatically, but very large histories (100+ pages) can take a long time.
-- **Mobile not supported** Chrome extensions do not run on iOS or Android. A companion web app for mobile access is planned.
+- **AO3 rate limiting** -- the stats scraper may be blocked temporarily if AO3's Cloudflare protection triggers. The scraper backs off automatically, but very large histories (100+ pages) can take a long time.
+- **Mobile not supported** -- Chrome extensions do not run on iOS or Android. A companion web app for mobile access is planned.
 
 ---
 
@@ -184,7 +208,7 @@ Open personal project -- forks and contributions welcome. A few conventions:
 - No CDN scripts. All libraries must be bundled locally in `assets/lib/` (Chrome CSP blocks external scripts)
 - Keep error messages user-friendly with no technical jargon in the UI
 - No em dashes in UI text
-- Do not stack CSS patches, rewrite the affected rule cleanly
+- Do not stack CSS patches -- rewrite the affected rule cleanly
 
 ---
 

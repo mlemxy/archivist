@@ -11,7 +11,8 @@
     "activeTab",
     "scripting",
     "cookies",
-    "identity"
+    "identity",
+    "tabs"
   ],
   "host_permissions": [
     "https://archiveofourown.org/*",

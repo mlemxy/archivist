@@ -119,21 +119,30 @@ async function handleUser(user, container) {
   $('aeml').textContent  = user.email || ''
   if (user.photoURL) { $('aav').src = user.photoURL; $('aav').classList.remove('hidden') }
 
-  await doInitialSync(user.uid, container)
+  try {
+    await doInitialSync(user.uid, container)
+  } catch (e) {
+    setStatus(container, 'Sync unavailable. Your bookmarks are saved locally.')
+    console.warn('[Archivist] Sync error:', e?.message)
+  }
   _onChange?.(_uid)
 
-  _unsub = [
-    listenBookmarks(_uid, async ({ changed, removed }) => {
-      await Promise.all([
-        ...changed.map((bm) => saveBookmark(bm)),
-        ...removed.map((id) => import('../db/database.js').then(({ deleteBookmark }) => deleteBookmark(id))),
-      ])
-      _onChange?.(_uid)
-    }),
-    listenSettings(_uid, async (s) => {
-      for (const [k,v] of Object.entries(s)) await setSetting(k, v)
-    }),
-  ]
+  try {
+    _unsub = [
+      listenBookmarks(_uid, async ({ changed, removed }) => {
+        await Promise.all([
+          ...changed.map((bm) => saveBookmark(bm)),
+          ...removed.map((id) => import('../db/database.js').then(({ deleteBookmark }) => deleteBookmark(id))),
+        ])
+        _onChange?.(_uid)
+      }),
+      listenSettings(_uid, async (s) => {
+        for (const [k,v] of Object.entries(s)) await setSetting(k, v)
+      }),
+    ]
+  } catch (e) {
+    console.warn('[Archivist] Listener error:', e?.message)
+  }
 }
 
 function setProgress(container, pct) {

@@ -10,8 +10,20 @@ let currentFic = null, personalTags = [], toastTimer = null
 
 async function init() {
   chrome.runtime.sendMessage({ type:'GET_CURRENT_FIC' }, async (r) => {
-    if (chrome.runtime.lastError || !r?.fic) { showState('no-fic'); return }
-    currentFic = r.fic; await renderFic(r.fic); showState('fic')
+    if (!chrome.runtime.lastError && r?.fic) {
+      currentFic = r.fic; await renderFic(r.fic); showState('fic')
+    } else {
+      // SW may have been asleep and lost the session — try re-scraping the active tab
+      chrome.tabs.query({ active:true, currentWindow:true }, ([tab]) => {
+        if (!tab?.id) { showState('no-fic'); return }
+        chrome.tabs.sendMessage(tab.id, { type:'RESCRAPE_FIC' }, async (res) => {
+          if (chrome.runtime.lastError || !res?.payload) { showState('no-fic'); return }
+          // Store it in session so sidepanel can also pick it up
+          chrome.runtime.sendMessage({ type:'FIC_PAGE_DETECTED', payload: res.payload })
+          currentFic = res.payload; await renderFic(res.payload); showState('fic')
+        })
+      })
+    }
   })
 }
 

@@ -281,11 +281,16 @@ function getFiltered() {
     );
   }
   filtered.sort((a, b) => {
-    let va = a[sortKey]??0, vb = b[sortKey]??0;
-    if (typeof va==='string') va = new Date(va).getTime()||0;
-    if (typeof vb==='string') vb = new Date(vb).getTime()||0;
-    return sortDir==='asc' ? va-vb : vb-va;
-  });
+    let va = a[sortKey] ?? 0, vb = b[sortKey] ?? 0
+    if (typeof va === 'string') va = new Date(va).getTime() || 0
+    if (typeof vb === 'string') vb = new Date(vb).getTime() || 0
+    // Unrated (0) always goes to the bottom regardless of sort direction
+    if (sortKey === 'starRating') {
+      if (!va && vb) return 1
+      if (va && !vb) return -1
+    }
+    return sortDir === 'asc' ? va - vb : vb - va
+  })
   return filtered;
 }
 
@@ -432,31 +437,131 @@ confirmDelete.addEventListener('click', async () => {
 // ---------------------------------------------------------------------------
 // Fic modal
 // ---------------------------------------------------------------------------
+// Modal edit state
+let _mStars = 0, _mTags = [], _mBm = null
+
+function renderModalStars() {
+  document.querySelectorAll('#modal-stars .star')
+    .forEach((s) => s.classList.toggle('active', parseInt(s.dataset.v,10) <= _mStars))
+}
+
+function renderModalTagChips() {
+  const tc = document.getElementById('modal-tag-chips')
+  if (!tc) return
+  tc.innerHTML = ''
+  _mTags.forEach((tag, i) => {
+    const chip = document.createElement('span')
+    chip.className = 'tag-chip'
+    chip.innerHTML = `${escHtml(tag)}<button>×</button>`
+    chip.querySelector('button').onclick = () => { _mTags.splice(i,1); renderModalTagChips() }
+    tc.appendChild(chip)
+  })
+}
+
 function openFicModal(bm) {
-  currentModalWorkId = bm.workId;
-  modalSwatch.style.background = swatchColor(bm.workId);
-  const rs = ratingAbbr(bm.rating);
-  modalRating.textContent = rs;
-  modalRating.setAttribute('data-rating', rs);
-  modalTitle.textContent  = bm.title || 'Untitled';
-  modalAuthor.textContent = (bm.authors||[]).join(', ') || 'Anonymous';
-  modalFandoms.innerHTML  = '';
-  (bm.fandoms||[]).forEach((f) => { const p=document.createElement('span'); p.className='modal-fandom-pill'; p.textContent=f; modalFandoms.appendChild(p); });
-  modalWords.textContent     = formatNumber(bm.wordCount) + ' words';
-  modalChapters.textContent  = formatChapters(bm.chaptersCurrent, bm.chaptersTotal);
-  modalAo3Status.textContent = bm.ao3Status || 'In Progress';
-  if (bm.annotation) { modalAnnotation.textContent=bm.annotation; modalAnnotation.classList.remove('hidden'); }
-  else { modalAnnotation.classList.add('hidden'); }
-  modalTags.innerHTML = '';
-  (bm.personalTags||[]).forEach((t) => { const c=document.createElement('span'); c.className='modal-tag'; c.textContent=t; modalTags.appendChild(c); });
-  modalAo3Link.href = bm.ao3Url || `https://archiveofourown.org/works/${bm.workId}`;
-  modalDate.textContent = bm.dateBookmarked ? 'Saved ' + formatDate(bm.dateBookmarked) : '';
-  ficModalOverlay.classList.remove('hidden');
+  currentModalWorkId = bm.workId
+  _mBm = bm; _mStars = bm.starRating || 0; _mTags = [...(bm.personalTags||[])]
+
+  modalSwatch.style.background = swatchColor(bm.workId)
+  const rs = ratingAbbr(bm.rating)
+  modalRating.textContent = rs; modalRating.setAttribute('data-rating', rs)
+  modalTitle.textContent  = bm.title || 'Untitled'
+  modalAuthor.textContent = (bm.authors||[]).join(', ') || 'Anonymous'
+  modalFandoms.innerHTML  = ''
+  ;(bm.fandoms||[]).forEach((f) => { const p=document.createElement('span'); p.className='modal-fandom-pill'; p.textContent=f; modalFandoms.appendChild(p) })
+  modalWords.textContent     = formatNumber(bm.wordCount) + ' words'
+  modalChapters.textContent  = formatChapters(bm.chaptersCurrent, bm.chaptersTotal)
+  modalAo3Status.textContent = bm.ao3Status || 'In Progress'
+  if (bm.annotation) { modalAnnotation.textContent=bm.annotation; modalAnnotation.classList.remove('hidden') }
+  else { modalAnnotation.classList.add('hidden') }
+  modalTags.innerHTML = ''
+  ;(bm.personalTags||[]).forEach((t) => { const c=document.createElement('span'); c.className='modal-tag'; c.textContent=t; modalTags.appendChild(c) })
+  modalAo3Link.href     = bm.ao3Url || `https://archiveofourown.org/works/${bm.workId}`
+  modalDate.textContent = bm.dateBookmarked ? 'Saved ' + formatDate(bm.dateBookmarked) : ''
+
+  // Populate edit form
+  const mStatus = document.getElementById('modal-status')
+  const mChap   = document.getElementById('modal-last-chapter')
+  const mAnnot  = document.getElementById('modal-annotation')
+  if (mStatus) mStatus.value = bm.status || 'Plan to Read'
+  if (mChap)   mChap.value   = bm.lastReadChapter || 0
+  // annotation field in modal-edit-form (textarea)
+  const mAnnotTA = document.querySelector('#modal-edit-form #modal-annotation')
+  if (mAnnotTA) mAnnotTA.value = bm.annotation || ''
+  renderModalStars(); renderModalTagChips()
+  document.getElementById('modal-edit-form')?.classList.add('hidden')
+
+  ficModalOverlay.classList.remove('hidden')
 }
 
 modalClose.addEventListener('click', () => ficModalOverlay.classList.add('hidden'));
 ficModalOverlay.addEventListener('click', (e) => { if (e.target===ficModalOverlay) ficModalOverlay.classList.add('hidden'); });
 modalDeleteBtn.addEventListener('click', () => { pendingDeleteId=currentModalWorkId; confirmOverlay.classList.remove('hidden'); });
+
+// Edit button — toggle inline form
+document.getElementById('modal-edit-btn')?.addEventListener('click', () => {
+  document.getElementById('modal-edit-form')?.classList.toggle('hidden')
+})
+
+// Modal star rating
+document.getElementById('modal-stars')?.addEventListener('click', (e) => {
+  const s = e.target.closest('.star'); if (!s) return
+  const v = parseInt(s.dataset.v, 10); _mStars = _mStars === v ? 0 : v; renderModalStars()
+})
+document.getElementById('modal-stars')?.addEventListener('mouseover', (e) => {
+  const s = e.target.closest('.star'); if (!s) return
+  const v = parseInt(s.dataset.v, 10)
+  document.querySelectorAll('#modal-stars .star').forEach((st) => st.classList.toggle('active', parseInt(st.dataset.v,10) <= v))
+})
+document.getElementById('modal-stars')?.addEventListener('mouseleave', renderModalStars)
+
+// Modal tag input
+const mTagInput = document.getElementById('modal-tag-input')
+const addModalTags = () => {
+  if (!mTagInput?.value.trim()) return
+  mTagInput.value.trim().split(',').map((t)=>t.trim()).filter(Boolean)
+    .forEach((t) => { if (!_mTags.includes(t)) _mTags.push(t) })
+  mTagInput.value = ''; renderModalTagChips()
+}
+mTagInput?.addEventListener('keydown', (e) => { if (e.key==='Enter'||e.key===','){e.preventDefault();addModalTags()} })
+mTagInput?.addEventListener('blur', addModalTags)
+
+// Modal save
+document.getElementById('modal-save-btn')?.addEventListener('click', async () => {
+  if (!_mBm) return
+  const btn = document.getElementById('modal-save-btn')
+  btn.disabled = true; btn.textContent = 'Saving...'
+  try {
+    addModalTags()
+    const mStatus = document.getElementById('modal-status')
+    const mChap   = document.getElementById('modal-last-chapter')
+    const mAnnotTA = document.querySelector('#modal-edit-form textarea')
+    const saved = await saveBookmark({
+      ..._mBm,
+      status:          mStatus?.value || _mBm.status,
+      lastReadChapter: parseInt(mChap?.value||'0', 10) || 0,
+      starRating:      _mStars,
+      annotation:      mAnnotTA?.value.trim() || '',
+      personalTags:    [..._mTags],
+    })
+    try { const u = (await import('./firebase.js')).currentUser(); if(u) await (await import('./firebase.js')).syncBookmark(u.uid, saved) } catch {}
+    // Refresh view
+    _mBm = saved
+    if (saved.annotation) { modalAnnotation.textContent=saved.annotation; modalAnnotation.classList.remove('hidden') }
+    else { modalAnnotation.classList.add('hidden') }
+    modalTags.innerHTML = ''
+    ;(saved.personalTags||[]).forEach((t) => { const c=document.createElement('span'); c.className='modal-tag'; c.textContent=t; modalTags.appendChild(c) })
+    document.getElementById('modal-edit-form')?.classList.add('hidden')
+    await loadBookmarks()
+    showToast('Bookmark updated')
+  } catch { showToast('Could not save. Try again.', true) }
+  finally { btn.disabled=false; btn.textContent='Save changes' }
+})
+
+// Modal cancel
+document.getElementById('modal-cancel-btn')?.addEventListener('click', () => {
+  document.getElementById('modal-edit-form')?.classList.add('hidden')
+})
 
 // ---------------------------------------------------------------------------
 // Settings
