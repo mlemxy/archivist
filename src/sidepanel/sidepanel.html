@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Archivist — Detail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+
+  <!-- ── HEADER ─────────────────────────────────────────────────── -->
+  <header class="panel-header">
+    <span class="panel-logo">Archivist</span>
+    <button class="icon-btn" id="open-dashboard-btn" title="Open Dashboard">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- ── NO FIC STATE ───────────────────────────────────────────── -->
+  <div class="state" id="state-no-fic">
+    <div class="empty-icon">📖</div>
+    <p class="empty-title">No fic detected</p>
+    <p class="empty-sub">Navigate to an AO3 fic page to see details here.</p>
+  </div>
+
+  <!-- ── FIC DETAIL STATE ───────────────────────────────────────── -->
+  <div class="state hidden" id="state-fic">
+
+    <!-- ── SECTION A: AO3 Metadata ──────────────────────────────── -->
+    <section class="panel-section" id="section-meta">
+
+      <!-- Colour swatch + title block -->
+      <div class="fic-hero">
+        <div class="fic-swatch" id="fic-swatch"></div>
+        <div class="fic-hero-info">
+          <div class="fic-rating-badge" id="fic-rating">G</div>
+          <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+          <h1 class="fic-title" id="fic-title">Loading…</h1>
+          <span class="card-update-badge hidden" id="sp-update-badge">New chapter!</span>
+        </div>
+          <p class="fic-author" id="fic-author"></p>
+        </div>
+      </div>
+
+      <!-- Fandoms -->
+      <div class="tag-group" id="fic-fandoms"></div>
+
+      <!-- Stats row -->
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-label">Words</span>
+          <span class="stat-value mono" id="fic-words">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Chapters</span>
+          <span class="stat-value mono" id="fic-chapters">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Status</span>
+          <span class="stat-value" id="fic-ao3-status">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Language</span>
+          <span class="stat-value" id="fic-language">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Updated</span>
+          <span class="stat-value mono" id="fic-updated">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Kudos</span>
+          <span class="stat-value mono" id="fic-kudos">—</span>
+        </div>
+      </div>
+
+      <!-- Tag sections -->
+      <div class="meta-tag-section" id="section-warnings"></div>
+      <div class="meta-tag-section" id="section-relationships"></div>
+      <div class="meta-tag-section" id="section-characters"></div>
+      <div class="meta-tag-section" id="section-additional"></div>
+
+      <!-- Summary -->
+      <div class="summary-block" id="summary-block">
+        <p class="section-label">Summary</p>
+        <div class="summary-text" id="fic-summary"></div>
+      </div>
+
+      <!-- AO3 link -->
+      <a class="btn btn-ghost full-width" id="ao3-link" href="#" target="_blank">
+        Open on AO3 ↗
+      </a>
+
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── SECTION B: Your Data ──────────────────────────────────── -->
+    <section class="panel-section" id="section-yours">
+      <p class="section-heading">Your Library Entry</p>
+
+      <!-- Already saved notice -->
+      <div class="already-saved hidden" id="already-saved-banner">
+        ✓ Editing existing bookmark
+      </div>
+
+      <!-- Reading status -->
+      <div class="field">
+        <label class="field-label" for="status-select">Reading status</label>
+        <div class="select-wrapper">
+          <select id="status-select">
+            <option value="Reading">Reading</option>
+            <option value="Completed">Completed</option>
+            <option value="On Hold">On Hold</option>
+            <option value="Dropped">Dropped</option>
+            <option value="Plan to Read" selected>Plan to Read</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Last read chapter -->
+      <div class="field field-row">
+        <div class="field-col">
+          <label class="field-label" for="last-chapter">Last read chapter</label>
+          <input id="last-chapter" class="input" type="number" min="0" placeholder="0" />
+        </div>
+        <div class="field-col">
+          <label class="field-label">Your rating</label>
+          <div class="star-row" id="star-rating">
+            <button class="star" data-v="1">★</button>
+            <button class="star" data-v="2">★</button>
+            <button class="star" data-v="3">★</button>
+            <button class="star" data-v="4">★</button>
+            <button class="star" data-v="5">★</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notify toggle -->
+      <div class="field field-inline">
+        <div>
+          <p class="field-label" style="margin-bottom:0">Notify on new chapters</p>
+          <p class="field-hint">Badge appears when this fic updates</p>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="notify-toggle" />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <!-- Annotation -->
+      <div class="field">
+        <label class="field-label" for="annotation">Your annotation / review</label>
+        <textarea
+          id="annotation"
+          class="textarea"
+          placeholder="Your thoughts, warnings to self, things you loved, things to remember when you reread…"
+          rows="7"
+        ></textarea>
+      </div>
+
+      <!-- Personal tags -->
+      <div class="field">
+        <label class="field-label" for="tag-input">Personal tags <span class="field-hint">press Enter or comma to add</span></label>
+        <input id="tag-input" class="input" type="text" placeholder="e.g. hurt/comfort, slow burn, reread" />
+        <div class="tag-chips" id="tag-chips"></div>
+      </div>
+
+      <!-- Date bookmarked -->
+      <div class="field">
+        <label class="field-label">Date bookmarked</label>
+        <p class="meta-date" id="date-bookmarked">—</p>
+      </div>
+
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── ACTIONS ────────────────────────────────────────────────── -->
+    <section class="panel-section actions-section">
+      <button class="btn btn-primary full-width" id="save-btn">Save to Library</button>
+      <div class="action-row">
+        <button class="btn btn-ghost" id="copy-link-btn">Copy AO3 link</button>
+        <button class="btn btn-danger" id="delete-btn">Delete bookmark</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ── CONFIRM DIALOG ─────────────────────────────────────────── -->
+  <div class="overlay hidden" id="confirm-overlay">
+    <div class="confirm-dialog">
+      <p class="confirm-title">Delete this bookmark?</p>
+      <p class="confirm-sub">Your annotation and tags will be permanently removed.</p>
+      <div class="confirm-actions">
+        <button class="btn btn-ghost" id="confirm-cancel">Cancel</button>
+        <button class="btn btn-danger" id="confirm-delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TOAST ──────────────────────────────────────────────────── -->
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="sidepanel.js" type="module"></script>
+</body>
+</html>
